@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Health Connect Bridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 font-sans text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="bg-blue-200 text-blue-900 p-4 flex justify-between items-center shadow">
+    <div class="text-xl font-bold flex items-center gap-2">
+      <span class="text-2xl">💙</span> Health Connect Bridge
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="text-center py-10 px-4">
+    <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 mb-4">
+      Transforming Healthcare Through Digital Connectivity
+    </h1>
+    <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+      Donate unused medicines or request medications. Together, we bridge the healthcare gap.
+    </p>
+  </section>
+
+  <!-- Initial Options with Square Buttons -->
+  <section class="flex flex-col sm:flex-row justify-center gap-6 mb-10 px-4">
+    <!-- Donate Card -->
+    <button onclick="showForm('donate')" class="flex-1 bg-blue-300 hover:bg-blue-400 text-blue-900 rounded-none shadow p-6 text-left transition transform hover:scale-105">
+      <div class="text-3xl font-bold mb-2">💊 Donate Medicine</div>
+      <p class="text-base">
+        Have unused, unexpired medications? Your donation could save lives and reduce medical waste.
+      </p>
+    </button>
+
+    <!-- Request Card -->
+    <button onclick="showForm('request')" class="flex-1 bg-orange-200 hover:bg-orange-300 text-orange-900 rounded-none shadow p-6 text-left transition transform hover:scale-105">
+      <div class="text-3xl font-bold mb-2">🧡 Request Medicine</div>
+      <p class="text-base">
+        Need medication but facing challenges? Submit a request and we'll try to match you with available donations.
+      </p>
+    </button>
+  </section>
+
+  <!-- Forms -->
+  <section class="flex justify-center">
+    <div class="bg-white border-t-4 border-blue-200 rounded-xl shadow p-6 w-full max-w-2xl hidden" id="form-container">
+      
+      <!-- Donate Form -->
+      <form id="donate-form" class="space-y-4 hidden" onsubmit="handleSubmit(event, 'donation')">
+        <h2 class="text-xl font-bold text-blue-700">💊 Donate Medicine</h2>
+        <input required type="text" placeholder="Your full name" class="w-full p-2 border rounded" />
+        <input required type="text" placeholder="Medicine name" class="w-full p-2 border rounded" />
+        <input required type="text" placeholder="Quantity (e.g., 30 tablets)" class="w-full p-2 border rounded" />
+        <input required type="date" class="w-full p-2 border rounded" />
+        <input required type="tel" placeholder="Phone number" class="w-full p-2 border rounded" />
+        <textarea required placeholder="Full address" rows="3" class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="w-full bg-blue-300 hover:bg-blue-400 text-blue-900 font-semibold py-2 rounded-none">
+          Submit Donation
+        </button>
+      </form>
+
+      <!-- Request Form -->
+      <form id="request-form" class="space-y-4 hidden" onsubmit="handleSubmit(event, 'request')">
+        <h2 class="text-xl font-bold text-orange-500">🧡 Request Medicine</h2>
+        <input required type="text" placeholder="Your full name" class="w-full p-2 border rounded" />
+        <input required type="text" placeholder="Medicine name" class="w-full p-2 border rounded" />
+        <input required type="text" placeholder="Quantity needed (e.g., 30 tablets)" class="w-full p-2 border rounded" />
+        <input required type="tel" placeholder="Phone number" class="w-full p-2 border rounded" />
+        <textarea required placeholder="Full address" rows="3" class="w-full p-2 border rounded"></textarea>
+        <button type="submit" class="w-full bg-orange-200 hover:bg-orange-300 text-orange-900 font-semibold py-2 rounded-none">
+          Submit Request
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Success Section -->
+  <section id="success-section" class="hidden mt-10 px-4">
+    <div class="max-w-2xl mx-auto bg-green-100 border border-green-300 p-6 rounded-xl shadow text-center">
+      <h3 class="text-2xl font-bold text-green-700 mb-2">✅ Submission Successful!</h3>
+      <p class="text-green-800" id="success-message">
+        Thank you! Your submission has been received and will be processed shortly.
+      </p>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script>
+  function showForm(type) {
+    const container = document.getElementById('form-container');
+    const donateForm = document.getElementById('donate-form');
+    const requestForm = document.getElementById('request-form');
+    const successSection = document.getElementById('success-section');
+
+    container.classList.remove('hidden');
+    successSection.classList.add('hidden');
+
+    if (type === 'donate') {
+      donateForm.classList.remove('hidden');
+      requestForm.classList.add('hidden');
+    } else {
+      requestForm.classList.remove('hidden');
+      donateForm.classList.add('hidden');
+    }
+
+    container.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function handleSubmit(event, type) {
+  event.preventDefault();
+  const form = event.target;
+
+  const data = {
+    name: form[0].value,
+    medicine: form[1].value,
+    quantity: form[2].value,
+    phone: form[type === 'donation' ? 4 : 3].value,
+    address: form[type === 'donation' ? 5 : 4].value
+  };
+
+  if (type === 'donation') {
+    data.expiry = form[3].value; // Only add expiry if it's a donation
+  }
+
+  const endpoint = type === 'donation' ? 'http://localhost:5000/donate' : 'http://localhost:5000/request';
+
+  fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(result => {
+    document.getElementById('form-container').classList.add('hidden');
+    document.getElementById('success-section').classList.remove('hidden');
+    document.getElementById('success-message').textContent = result.message;
+    document.getElementById('success-section').scrollIntoView({ behavior: 'smooth' });
+  })
+  .catch(err => {
+    console.error('Submission error:', err);
+    alert('There was an error submitting your form. Please try again.');
+  });
+}
+
+
+</script>
+
+</body>
+</html>
